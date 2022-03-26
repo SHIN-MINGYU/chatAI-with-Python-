@@ -22,8 +22,8 @@ def prompt():
     p = ptna.name
     if(action.get()) == 0:
         p += ':' + ptna.responder.name
-    elif (action.get()) == 2:
-        p += ptna.responder.name
+    elif (action.get()) == 1:
+        p += ':'
     return p + '>'
 
 
