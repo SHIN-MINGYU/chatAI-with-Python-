@@ -34,13 +34,32 @@ class Dictionary:
                 self.new_lines.append(line)
 
         #   辞書型のインスタンス変数を用意
-        self.pattern = {}
+        self.pattern = []
         #   1行をタブで切り分けて辞書オブジェクトに格納
         #   pattern キー　正規表現のパターン
         #　phrases キー　応答列
         for line in self.new_lines:
             ptn, prs = line.split('\t')
             self.pattern.append(ParseItem(ptn, prs))
+
+    def study(self, input):
+        """ユーザーの発言を学習する
+
+            @param input ユーザーの発言"""
+        # インプット文字列末尾の改行は取り除いておく
+        input = input.rstrip('\n')
+        # 発言がランダム辞書に存在しなければself.randomの末尾に追加
+        if not input in self.random:
+            self.random.append(input)
+
+    def save(self):
+        """self.randomの内容をまるごと辞書に書き込む"""
+        # 各要素の末尾に改行を追加する
+        for index, element in enumerate(self.random):
+            self.random[index] = element + '\n'
+        # ランダム辞書に書き込む
+        with open('dics/random.txt', 'w', encoding='utf_8') as f:
+            f.writelines(self.random)
 
 
 class ParseItem:
@@ -73,7 +92,7 @@ class ParseItem:
             self.dic['need'] = 0
             if m[0][1]:
                 self.dic['need'] = int(m[0][1])
-            self.dic['phrase'] = int(m[0][2])
+            self.dic['phrase'] = m[0][2]
             # 作成した辞書をphrasesリストに追加
             self.phrases.append(self.dic.copy())
 
@@ -92,7 +111,7 @@ class ParseItem:
             # パラメーターmoodをsuitable()に渡す
             # 結果がtrueであればchoicesリストに'phrase'キーの応答列を追加
             if(self.suitable(p['need'], mood)):
-                choices.append(p['phrases'])
+                choices.append(p['phrase'])
             # choices リストが空であればNoneを返す
             if(len(choices) == 0):
                 return None

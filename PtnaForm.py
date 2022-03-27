@@ -1,6 +1,8 @@
+from re import L
 import tkinter as tk
-from tkinter.tix import COLUMN
 from ptna import *
+from datetime import datetime
+import tkinter.messagebox
 
 """グローバル変数の定義"""
 
@@ -9,12 +11,17 @@ response_area = None        # 応答エリアのオブジェクトを保持
 lb = None                        # ログ表示用リストボックスを保持
 action = None                  # オプションメニューの状態を保持
 ptna = Ptna('ptna')  # Ptnaオブジェクトを保持
+on_canvas = None  # Canvasオブジェクトを保持
+ptna_imges = []  # イメージを保持
+log = []  # インプット文字列を保持
 
 
 def putlog(str):
     """対話ログをリストボックスに追加する関数
     @str 入力文字列または応答メッセ―ジ"""
     lb.insert(tk.END, str)
+    # インプットと応答をリストlogに追加
+    log.append(str + '\n')
 
 
 def prompt():
@@ -25,6 +32,26 @@ def prompt():
     elif (action.get()) == 1:
         p += ':'
     return p + '>'
+
+
+def changeImg(img):
+    """画像をセットする関数"""
+    canvas.itemconfig(
+        on_canvas,
+        image=ptna_imges[img]
+    )
+
+
+def changeLooks():
+    m = ptna.emotion.mood
+    if -5 <= m <= 5:
+        changeImg(0)
+    elif -10 <= m < 5:
+        changeImg(1)
+    elif -15 <= m < -10:
+        changeImg(2)
+    else:
+        changeImg(3)
 
 
 def talk():
@@ -48,6 +75,19 @@ def talk():
         putlog(prompt() + response)
         # 入力エリアをクリア
         entry.delete(0, tk.END)
+
+    changeLooks()
+
+
+def writeLog():
+    """ログファイルに辞書を更新したに日時を記録"""
+    # ログを作成
+    now = 'Ptna System Dialogue Log : ' + \
+        datetime.now().strftime('%Y-%m-%d %H:%m:%S' + '\n')
+    log.insert(0, now)
+    # ログファイルへの書き込む
+    with open('dics/log.txt', 'a', encoding='utf_8') as f:
+        f.writelines(log)
     # ====================================================
     #  画面を猫画する関数
     # ====================================================
@@ -55,7 +95,7 @@ def talk():
 
 def run():
     # グローバル変数を使用するための記述
-    global entry, response_area, lb, action
+    global entry, response_area, lb, action, on_canvas, canvas, ptna_imges
 
     # メインウィンドウを作成
     root = tk.Tk()
@@ -67,13 +107,25 @@ def run():
     font = ('Helevetica', 14)
     font_log = ('Helevetica', 11)
 
+    def callback():
+        """終了時の処理"""
+        # メッセージボックスの[OK]ボタンクリック時の処理
+        if tkinter.messagebox.askyesno('Quit?', 'ランダム辞書を更新してもいい？'):
+            ptna.save()  # 記憶メソッド実行
+            writeLog()  # ログを保存
+            root.destroy()
+        # キャンセルボタンクリック
+        else:
+            root.destroy()
+    root.protocol('WM_DELETE_WINDOW', callback)
+
     # メニューバーの作成
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     # ファイルメニュー
     filemenu = tk.Menu(menubar)
     menubar.add_cascade(label='ファイル', menu=filemenu)
-    filemenu.add_command(label='問じる', command=root.destroy)
+    filemenu.add_command(label='問じる', command=callback)
     # オプションメニュー
     action = tk.IntVar()
     optionmenu = tk.Menu(menubar)
@@ -98,11 +150,15 @@ def run():
         bd=2  # 枠線の幅
     )
     canvas.place(x=370, y=0)  # メインウィンドウ上に表示
-    img = tk.PhotoImage(file='img1.gif')  # 表示するイメージを用意
-    canvas.create_image(
+    # イメージを用意
+    ptna_imges.append(tk.PhotoImage(file="images/talk.gif"))
+    ptna_imges.append(tk.PhotoImage(file="images/empty.gif"))
+    ptna_imges.append(tk.PhotoImage(file="images/angry.gif"))
+    ptna_imges.append(tk.PhotoImage(file="images/happy.gif"))
+    on_canvas = canvas.create_image(
         0,
         0,
-        image=img,  # 配置するイメージオブジェクトを指定
+        image=ptna_imges[0],  # 配置するイメージオブジェクトを指定
         anchor=tk.NW          # 配置の起点となる位置を右上隅に指定
     )
 

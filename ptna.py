@@ -12,6 +12,7 @@ class Ptna:
         # Dictionaryを生成
         self.dictionary = Dictionary()
         self.name = name
+        self.emotion = Emotion(self.dictionary)
         self.res_random = RandomResponder('Random', self.dictionary)
         self.res_what = RepeatResponder('Repeat', self.dictionary)
         self.res_pattern = PatternResponder('Pattern', self.dictionary)
@@ -25,13 +26,21 @@ class Ptna:
         戻り値　応答文字列"""
         # 0が1をランダムに生成
         x = random.randint(1, 100)
+        self.emotion.update(input)
         if x <= 60:
             self.responder = self.res_pattern
         elif x > 60 and x <= 90:
             self.responder = self.res_random
         else:
             self.responder = self.res_what
-        return self.responder.response(input)
+        #　応答フレーズを生成
+        resp = self.responder.response(input, self.emotion.mood)
+        self.dictionary.study(input)
+        return resp
+
+    def save(self):
+        """Dictionaryのsave()を呼ぶ中継メソッド"""
+        self.dictionary.save()
 
     def get_responder_name(self):
         """応答オブジェクトの名前を返す"""

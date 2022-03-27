@@ -53,7 +53,7 @@ class RandomResponder(Responder):
                 self.responses.append(str)
         rFile.close()
 
-    def response(self, input):
+    def response(self, input, mood):
         """応答文字列を作って返す
 
             @param input 入力された文字列
@@ -66,21 +66,19 @@ class PatternResponder(Responder):
 
     def response(self, input, mood):
         """パターンにマッチした場合に応答文字列を作って返す
-            @param input 入力された文字列"""
-        for ptn, prs in zip(
-            self.dictionary.pattern['pattern'], self.dictionary.pattern['phrases']
-        ):
-            # インプットされた文字列に対して
-            # パターン(ptnの値)でパターンにマッチしている場合
-            m = re.search(ptn, input)
-            if m:
-                # 応答フレーズ ptn[1]を'|'で切り分けて
-                # ランダムに1文を取り出す
-                resp = random.choice(prs.split('|'))
-                # 抽出した応答フレーズを返す
-                # 応答フレーズの中に%match%が埋め込まれている場合は
-                # インプットされた文字列内のパターンマッチした
-                # 文字列に置き換える
-                return re.sub('%match%', m.group(), resp)
-        # パターンにマッチしない場合はランダム辞書から返す
+            @param input 入力された文字列
+            @param mood 機嫌値"""
+        self.resp = None
+        for ptn_item in self.dictionary.pattern:
+            # match()でインポットした文字列にパターンマッチを行う
+            m = ptn_item.match(input)
+            # マッチした場合は機嫌値moodを引数にしてchoice()を実行
+            # 戻り値の応答文字列、またはNoneを取得
+            if(m):
+                self.resp = ptn_item.choice(mood)
+            # choice()の戻り値がNoneでない場合は
+            # 応答文字列の中の%match%をインポットされた文字列中の
+            # マッチした文字列に置き換える
+            if self.resp != None:
+                return re.sub('%match', m.group(), self.resp)
         return random.choice(self.dictionary.random)
