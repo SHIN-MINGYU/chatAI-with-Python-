@@ -1,5 +1,6 @@
 from responder import *
 from dictionary import *
+from analyzer import *
 
 
 class Ptna:
@@ -16,6 +17,8 @@ class Ptna:
         self.res_random = RandomResponder('Random', self.dictionary)
         self.res_what = RepeatResponder('Repeat', self.dictionary)
         self.res_pattern = PatternResponder('Pattern', self.dictionary)
+        self.res_template = TemplateResponser('Template', self.dictionary)
+        self.res_markov = MarkovResponder('Marcov', self.dictionary)
         # responderの初期値をRepeatResponderにする
 
     def dialogue(self, input):
@@ -27,15 +30,22 @@ class Ptna:
         # 0が1をランダムに生成
         x = random.randint(1, 100)
         self.emotion.update(input)
-        if x <= 60:
+        # インプット文字列を解析
+        parts = analyze(input)
+        # print(parts)
+        if x <= 30:
             self.responder = self.res_pattern
-        elif x > 60 and x <= 90:
+        elif 31 <= x <= 50:
+            self.responder = self.res_template
+        elif 51 <= x <= 70:
             self.responder = self.res_random
+        elif 71 <= x <= 90:
+            self.responder = self.res_markov
         else:
             self.responder = self.res_what
         #　応答フレーズを生成
-        resp = self.responder.response(input, self.emotion.mood)
-        self.dictionary.study(input)
+        resp = self.responder.response(input, self.emotion.mood, parts)
+        self.dictionary.study(input, parts)
         return resp
 
     def save(self):

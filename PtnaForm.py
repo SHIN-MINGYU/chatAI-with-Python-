@@ -1,5 +1,6 @@
 from re import L
 import tkinter as tk
+from typing import overload
 from ptna import *
 from datetime import datetime
 import tkinter.messagebox
@@ -54,7 +55,34 @@ def changeLooks():
         changeImg(3)
 
 
+@overload  # button click event
 def talk():
+    """対話を行う関数
+            ’Ptnaクラスのdialogue()を実行して応答メッセージを取得
+            入力文字列をよび応答メッセージをログに出力
+    """
+    value = entry.get()
+    # 入力エリアが来入力の場合
+    if not value:
+        response_area.configure(text='なに?')
+    # 入力されていたら対話オブジェクトを実行
+    else:
+        # 入力文字列を引数にしてdialogue()の結果を取得
+        response = ptna.dialogue(value)
+        # 応答メッセージを表示
+        response_area.configure(text=response)
+        # 入力文字列引数にしてputlog()を呼ぶ
+        putlog('>' + value)
+        # 応答メッセージを引数にしてputlog()を呼ぶ
+        putlog(prompt() + response)
+        # 入力エリアをクリア
+        entry.delete(0, tk.END)
+
+    changeLooks()
+
+
+@overload  # enter key event
+def talk(event):
     """対話を行う関数
             ’Ptnaクラスのdialogue()を実行して応答メッセージを取得
             入力文字列をよび応答メッセージをログに出力
@@ -195,6 +223,7 @@ def run():
         text='話す',
         command=talk  # クリックの時にtalk()関数を呼ぶ
     )
+    root.bind("<Return>", talk)
     button.pack(side=tk.LEFT)  # フレームの右詰めで配置
     frame.place(x=30, y=520)
 

@@ -1,0 +1,4 @@
+Ptna System Dialogue Log : 2022-04-04 20:04:26
+>おはよう！
+ptna:Pattern>おはよ！
+Ptna System Dialogue Log : 2022-04-04 20:04:23
