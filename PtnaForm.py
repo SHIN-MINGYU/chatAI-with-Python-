@@ -55,7 +55,7 @@ def changeLooks():
         changeImg(3)
 
 
-@overload  # button click event
+# button click event
 def talk():
     """対話を行う関数
             ’Ptnaクラスのdialogue()を実行して応答メッセージを取得
@@ -81,7 +81,7 @@ def talk():
     changeLooks()
 
 
-@overload  # enter key event
+# enter key event
 def talk(event):
     """対話を行う関数
             ’Ptnaクラスのdialogue()を実行して応答メッセージを取得

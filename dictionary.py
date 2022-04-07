@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import re
 import random
 from analyzer import *
@@ -75,7 +76,7 @@ class Dictionary:
         for line in self.new_t_lines:
             #テンプレート行をタブでcount, templateに分割
             count, template = line.split('\t')
-            #print(count, template)
+            #(count, template)
             # self.templateのキーにcount(出現回数)が存在しなければ
             # countをキーにして空のリストを要素として追加
             if not count in self.template:
@@ -125,7 +126,6 @@ class Dictionary:
             @param parts 形態素解析の結果(リスト)"""
         # 多重リストの要素を二つのパラメーターに取り出す
         for word, part in parts:
-            print(keyword_check(part), part, word)
             # analyzerのkeyword_check()関数による名刺チェックがTrueの場合
             if (keyword_check(part)):
                 depend = False  # ParseItemオブジェクトを保持する変数
@@ -169,7 +169,6 @@ class Dictionary:
             # countキーのリストにテンプレート文字列を追加
             if not template in self.template[count]:
                 self.template[count].append(template)
-        print('出来上がったテンプレート === ', self.template)
 
     def save(self):
         """self.randomの内容をまるごと辞書に書き込む"""

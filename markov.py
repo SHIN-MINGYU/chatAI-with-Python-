@@ -22,8 +22,8 @@ class Marcov:
         # 空白行が含まれていると\n\nが続くので\nを一つにする
         text = re.sub('\n\n', '\n', text)
         # ログファイルの文章を形態素に分解してリストにする
-        wordlist = parse(text)
 
+        wordlist = parse(text)
         # markov辞書を生成
         markov = {}
         p1 = ' '
